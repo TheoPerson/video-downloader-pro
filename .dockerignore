@@ -1,0 +1,17 @@
+__pycache__
+*.pyc
+.git
+.gitignore
+*.md
+.env
+.env.*
+!.env.example
+tests/
+.pytest_cache
+.ruff_cache
+node_modules
+.next
+frontend/node_modules
+frontend/.next
+.vscode
+.idea

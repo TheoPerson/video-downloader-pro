@@ -60,15 +60,12 @@ async def analyze_video(url: str) -> dict:
         with yt_dlp.YoutubeDL(opts) as ydl:
             return ydl.extract_info(url, download=False)
 
-    import concurrent.futures
     loop = asyncio.get_running_loop()
     try:
-        # Use ProcessPoolExecutor for true isolation and hard-kill capability
-        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as pool:
-            info = await asyncio.wait_for(
-                loop.run_in_executor(pool, _extract),
-                timeout=60,
-            )
+        info = await asyncio.wait_for(
+            loop.run_in_executor(None, _extract),
+            timeout=60,
+        )
     except asyncio.TimeoutError:
         raise RuntimeError("Video analysis timed out. Please try again.")
     except yt_dlp.utils.DownloadError as e:

@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     # Server
     api_host: str = "0.0.0.0"
-    api_port: int = 8000
+    api_port: int = 8001
     frontend_url: str = "http://localhost:3000"
     debug: bool = False
 

@@ -2,7 +2,7 @@
  * API client for the video downloader backend.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = ""; // Empty to use relative paths (proxied via next.config.ts)
 
 export interface VideoFormat {
   quality: string;

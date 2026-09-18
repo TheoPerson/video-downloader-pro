@@ -60,12 +60,15 @@ async def analyze_video(url: str) -> dict:
         with yt_dlp.YoutubeDL(opts) as ydl:
             return ydl.extract_info(url, download=False)
 
-    loop = asyncio.get_event_loop()
+    import concurrent.futures
+    loop = asyncio.get_running_loop()
     try:
-        info = await asyncio.wait_for(
-            loop.run_in_executor(None, _extract),
-            timeout=60,
-        )
+        # Use ProcessPoolExecutor for true isolation and hard-kill capability
+        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as pool:
+            info = await asyncio.wait_for(
+                loop.run_in_executor(pool, _extract),
+                timeout=60,
+            )
     except asyncio.TimeoutError:
         raise RuntimeError("Video analysis timed out. Please try again.")
     except yt_dlp.utils.DownloadError as e:
@@ -211,6 +214,10 @@ async def download_video(job: Job) -> Path:
             job.progress = 90.0
 
     opts = _get_base_opts()
+    
+    # Check for local ffmpeg in project directory
+    ffmpeg_dir = Path(__file__).parent.parent
+    
     opts.update(
         {
             "format": format_str,
@@ -220,7 +227,7 @@ async def download_video(job: Job) -> Path:
             "postprocessors": [],
             "max_filesize": settings.max_output_bytes,
             "socket_timeout": 30,
-            # Prefer ffmpeg for merging
+            "ffmpeg_location": str(ffmpeg_dir) if (ffmpeg_dir / "ffmpeg.exe").exists() else None,
             "prefer_ffmpeg": True,
         }
     )

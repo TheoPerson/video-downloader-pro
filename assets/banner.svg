@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 1080" width="3840" height="1080">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050505" />
+      <stop offset="50%" stop-color="#0a0a10" />
+      <stop offset="100%" stop-color="#050505" />
+    </linearGradient>
+
+    <!-- Animated Glow Orbs -->
+    <radialGradient id="glowBlue" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowPurple" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Glass Box Effect -->
+    <linearGradient id="glassFill" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.05)" />
+      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.01)" />
+    </linearGradient>
+    
+    <filter id="blurGlass">
+      <feGaussianBlur stdDeviation="20" />
+    </filter>
+
+    <filter id="glowText">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Base Background -->
+  <rect width="100%" height="100%" fill="url(#bg)" />
+
+  <!-- Animated Orbs -->
+  <circle cx="1000" cy="540" r="800" fill="url(#glowBlue)">
+    <animate attributeName="cx" values="1000;1400;1000" dur="15s" repeatCount="indefinite" />
+    <animate attributeName="cy" values="540;340;540" dur="18s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="2840" cy="540" r="900" fill="url(#glowPurple)">
+    <animate attributeName="cx" values="2840;2440;2840" dur="17s" repeatCount="indefinite" />
+    <animate attributeName="cy" values="540;740;540" dur="20s" repeatCount="indefinite" />
+  </circle>
+
+  <!-- Grid Overlay for tech feel -->
+  <path d="M0,0 L3840,0 L3840,1080 L0,1080 Z" fill="url(#grid)" opacity="0.1"/>
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#ffffff" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <!-- Central Glassmorphic Card -->
+  <rect x="720" y="240" width="2400" height="600" rx="40" fill="url(#glassFill)" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
+  
+  <!-- Text Elements -->
+  <g transform="translate(1920, 480)" text-anchor="middle">
+    <text x="0" y="0" font-family="'Inter', -apple-system, sans-serif" font-size="140" font-weight="800" fill="#ffffff" letter-spacing="-2" filter="url(#glowText)">
+      Video Downloader Pro
+    </text>
+    <text x="0" y="120" font-family="'Inter', -apple-system, sans-serif" font-size="52" font-weight="400" fill="#a1a1aa" letter-spacing="4">
+      HIGH-FIDELITY MEDIA UTILITY
+    </text>
+  </g>
+
+  <!-- Floating UI Elements (Animated) -->
+  <g transform="translate(1200, 680)">
+    <animateTransform attributeName="transform" type="translate" values="1200,680; 1200,660; 1200,680" dur="6s" repeatCount="indefinite" />
+    <rect x="0" y="0" width="300" height="80" rx="40" fill="#3b82f6" opacity="0.15" />
+    <rect x="0" y="0" width="300" height="80" rx="40" fill="none" stroke="#3b82f6" stroke-width="2" />
+    <text x="150" y="48" font-family="sans-serif" font-size="28" font-weight="600" fill="#3b82f6" text-anchor="middle">FastAPI Engine</text>
+  </g>
+
+  <g transform="translate(1620, 720)">
+    <animateTransform attributeName="transform" type="translate" values="1620,720; 1620,740; 1620,720" dur="8s" repeatCount="indefinite" />
+    <rect x="0" y="0" width="300" height="80" rx="40" fill="#8b5cf6" opacity="0.15" />
+    <rect x="0" y="0" width="300" height="80" rx="40" fill="none" stroke="#8b5cf6" stroke-width="2" />
+    <text x="150" y="48" font-family="sans-serif" font-size="28" font-weight="600" fill="#8b5cf6" text-anchor="middle">Next.js 16 UI</text>
+  </g>
+
+  <g transform="translate(2040, 660)">
+    <animateTransform attributeName="transform" type="translate" values="2040,660; 2040,680; 2040,660" dur="7s" repeatCount="indefinite" />
+    <rect x="0" y="0" width="300" height="80" rx="40" fill="#10b981" opacity="0.15" />
+    <rect x="0" y="0" width="300" height="80" rx="40" fill="none" stroke="#10b981" stroke-width="2" />
+    <text x="150" y="48" font-family="sans-serif" font-size="28" font-weight="600" fill="#10b981" text-anchor="middle">iOS Optimized</text>
+  </g>
+</svg>

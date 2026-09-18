@@ -1,94 +1,137 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 1080" width="3840" height="1080">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="100%" height="100%">
   <defs>
-    <!-- Background Gradient -->
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#050505" />
-      <stop offset="50%" stop-color="#0a0a10" />
-      <stop offset="100%" stop-color="#050505" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&amp;display=swap');
+      
+      .bg { fill: #000000; }
+      .grid { 
+        stroke: rgba(255, 255, 255, 0.03);
+        stroke-width: 1;
+      }
+      .text-title {
+        font-family: 'Inter', -apple-system, sans-serif;
+        font-size: 56px;
+        font-weight: 800;
+        fill: #ffffff;
+        letter-spacing: -1.5px;
+      }
+      .text-subtitle {
+        font-family: 'Inter', -apple-system, sans-serif;
+        font-size: 18px;
+        font-weight: 400;
+        fill: #888888;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+      }
+      .glow-text {
+        fill: url(#textGlow);
+      }
+      
+      /* Smooth CSS Animations */
+      .orb-1 {
+        animation: float1 14s ease-in-out infinite alternate;
+      }
+      .orb-2 {
+        animation: float2 18s ease-in-out infinite alternate;
+      }
+      .border-flow {
+        stroke-dasharray: 600;
+        stroke-dashoffset: 600;
+        animation: flow 4s linear infinite;
+      }
+      
+      @keyframes float1 {
+        0% { transform: translate(0px, 0px) scale(1); }
+        100% { transform: translate(150px, 50px) scale(1.2); }
+      }
+      @keyframes float2 {
+        0% { transform: translate(0px, 0px) scale(1); }
+        100% { transform: translate(-150px, -50px) scale(1.1); }
+      }
+      @keyframes flow {
+        to { stroke-dashoffset: -600; }
+      }
+    </style>
+
+    <linearGradient id="textGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="50%" stop-color="#a1a1aa" />
+      <stop offset="100%" stop-color="#71717a" />
     </linearGradient>
 
-    <!-- Animated Glow Orbs -->
-    <radialGradient id="glowBlue" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25" />
+    <radialGradient id="orbGradient1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15" />
       <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
     </radialGradient>
-    <radialGradient id="glowPurple" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.25" />
-      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0" />
+    
+    <radialGradient id="orbGradient2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
     </radialGradient>
 
-    <!-- Glass Box Effect -->
-    <linearGradient id="glassFill" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.05)" />
-      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.01)" />
+    <pattern id="hexGrid" width="40" height="69.282" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+      <path d="M 40 17.321 L 20 5.774 L 0 17.321 L 0 40.415 L 20 51.962 L 40 40.415 Z" fill="none" class="grid"/>
+      <path d="M 20 75.056 L 0 63.509 L -20 75.056" fill="none" class="grid"/>
+      <path d="M 60 75.056 L 40 63.509 L 20 75.056" fill="none" class="grid"/>
+    </pattern>
+
+    <linearGradient id="cardBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.2)" />
+      <stop offset="50%" stop-color="rgba(255,255,255,0.02)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0.08)" />
     </linearGradient>
     
-    <filter id="blurGlass">
-      <feGaussianBlur stdDeviation="20" />
-    </filter>
-
-    <filter id="glowText">
-      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <linearGradient id="animatedBorder" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="transparent" />
+      <stop offset="50%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="transparent" />
+    </linearGradient>
   </defs>
 
-  <!-- Base Background -->
-  <rect width="100%" height="100%" fill="url(#bg)" />
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg" />
 
-  <!-- Animated Orbs -->
-  <circle cx="1000" cy="540" r="800" fill="url(#glowBlue)">
-    <animate attributeName="cx" values="1000;1400;1000" dur="15s" repeatCount="indefinite" />
-    <animate attributeName="cy" values="540;340;540" dur="18s" repeatCount="indefinite" />
-  </circle>
-  <circle cx="2840" cy="540" r="900" fill="url(#glowPurple)">
-    <animate attributeName="cx" values="2840;2440;2840" dur="17s" repeatCount="indefinite" />
-    <animate attributeName="cy" values="540;740;540" dur="20s" repeatCount="indefinite" />
-  </circle>
+  <!-- Animated Ambient Orbs -->
+  <circle cx="300" cy="100" r="400" fill="url(#orbGradient1)" class="orb-1" />
+  <circle cx="900" cy="300" r="500" fill="url(#orbGradient2)" class="orb-2" />
 
-  <!-- Grid Overlay for tech feel -->
-  <path d="M0,0 L3840,0 L3840,1080 L0,1080 Z" fill="url(#grid)" opacity="0.1"/>
-  <defs>
-    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#ffffff" stroke-width="1" />
-    </pattern>
-  </defs>
+  <!-- Hexagonal Tech Grid Overlay -->
+  <rect width="100%" height="100%" fill="url(#hexGrid)" />
 
   <!-- Central Glassmorphic Card -->
-  <rect x="720" y="240" width="2400" height="600" rx="40" fill="url(#glassFill)" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
-  
-  <!-- Text Elements -->
-  <g transform="translate(1920, 480)" text-anchor="middle">
-    <text x="0" y="0" font-family="'Inter', -apple-system, sans-serif" font-size="140" font-weight="800" fill="#ffffff" letter-spacing="-2" filter="url(#glowText)">
-      Video Downloader Pro
-    </text>
-    <text x="0" y="120" font-family="'Inter', -apple-system, sans-serif" font-size="52" font-weight="400" fill="#a1a1aa" letter-spacing="4">
-      HIGH-FIDELITY MEDIA UTILITY
-    </text>
-  </g>
+  <g transform="translate(150, 60)">
+    <!-- Base Card -->
+    <rect width="900" height="280" rx="24" fill="rgba(10, 10, 12, 0.6)" stroke="url(#cardBorder)" stroke-width="1.5" />
+    
+    <!-- Flowing Border Animation -->
+    <rect width="900" height="280" rx="24" fill="none" stroke="url(#animatedBorder)" stroke-width="1.5" class="border-flow" />
+    
+    <!-- Text Content -->
+    <g transform="translate(450, 120)" text-anchor="middle">
+      <!-- Icon -->
+      <path d="M-12,-40 L0,-28 L12,-40 M0,-28 L0,-60 M-24,-20 L24,-20" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.8" />
+      
+      <text y="30" class="text-title glow-text">Video Downloader Pro</text>
+      <text y="70" class="text-subtitle">High-Fidelity Media Utility</text>
+    </g>
 
-  <!-- Floating UI Elements (Animated) -->
-  <g transform="translate(1200, 680)">
-    <animateTransform attributeName="transform" type="translate" values="1200,680; 1200,660; 1200,680" dur="6s" repeatCount="indefinite" />
-    <rect x="0" y="0" width="300" height="80" rx="40" fill="#3b82f6" opacity="0.15" />
-    <rect x="0" y="0" width="300" height="80" rx="40" fill="none" stroke="#3b82f6" stroke-width="2" />
-    <text x="150" y="48" font-family="sans-serif" font-size="28" font-weight="600" fill="#3b82f6" text-anchor="middle">FastAPI Engine</text>
-  </g>
-
-  <g transform="translate(1620, 720)">
-    <animateTransform attributeName="transform" type="translate" values="1620,720; 1620,740; 1620,720" dur="8s" repeatCount="indefinite" />
-    <rect x="0" y="0" width="300" height="80" rx="40" fill="#8b5cf6" opacity="0.15" />
-    <rect x="0" y="0" width="300" height="80" rx="40" fill="none" stroke="#8b5cf6" stroke-width="2" />
-    <text x="150" y="48" font-family="sans-serif" font-size="28" font-weight="600" fill="#8b5cf6" text-anchor="middle">Next.js 16 UI</text>
-  </g>
-
-  <g transform="translate(2040, 660)">
-    <animateTransform attributeName="transform" type="translate" values="2040,660; 2040,680; 2040,660" dur="7s" repeatCount="indefinite" />
-    <rect x="0" y="0" width="300" height="80" rx="40" fill="#10b981" opacity="0.15" />
-    <rect x="0" y="0" width="300" height="80" rx="40" fill="none" stroke="#10b981" stroke-width="2" />
-    <text x="150" y="48" font-family="sans-serif" font-size="28" font-weight="600" fill="#10b981" text-anchor="middle">iOS Optimized</text>
+    <!-- Tech Stack Pills -->
+    <g transform="translate(450, 225)" text-anchor="middle" font-family="'Inter', sans-serif" font-size="12" font-weight="600" fill="#a1a1aa">
+      <!-- Pill 1 -->
+      <g transform="translate(-140, 0)">
+        <rect x="-45" y="-12" width="90" height="24" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" />
+        <text y="4">Next.js 16</text>
+      </g>
+      <!-- Pill 2 -->
+      <g transform="translate(0, 0)">
+        <rect x="-40" y="-12" width="80" height="24" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" />
+        <text y="4">FastAPI</text>
+      </g>
+      <!-- Pill 3 -->
+      <g transform="translate(140, 0)">
+        <rect x="-45" y="-12" width="90" height="24" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" />
+        <text y="4">iOS Safari</text>
+      </g>
+    </g>
   </g>
 </svg>

@@ -171,25 +171,21 @@ async def download_video(job: Job) -> Path:
     """
     quality = job.quality
     target_format = job.format
+    ext = target_format
 
     # Determine yt-dlp format string
     if quality == "audio":
         format_str = "bestaudio[ext=m4a]/bestaudio/best"
-        ext = "m4a"
+        if ext not in ["m4a", "mp3"]:
+            ext = "m4a"
     else:
         height = QUALITY_MAP.get(quality, 720)
-        # Prefer mp4 video + m4a audio for iOS compatibility
+        # Select best video stream up to requested height
         format_str = (
-            f"bestvideo[height<={height}][ext=mp4]+bestaudio[ext=m4a]/"
             f"bestvideo[height<={height}]+bestaudio/"
             f"best[height<={height}]/"
             f"best"
         )
-        ext = "mp4"
-
-    if quality == "best":
-        format_str = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
-        ext = "mp4"
 
     # Setup output path
     download_dir = settings.download_path
@@ -219,7 +215,7 @@ async def download_video(job: Job) -> Path:
         {
             "format": format_str,
             "outtmpl": output_template,
-            "merge_output_format": ext,
+            "merge_output_format": ext if quality != "audio" else None,
             "progress_hooks": [_progress_hook],
             "postprocessors": [],
             "max_filesize": settings.max_output_bytes,
@@ -229,8 +225,25 @@ async def download_video(job: Job) -> Path:
         }
     )
 
-    # If MP4, add remux postprocessor for consistency
-    if ext == "mp4":
+    # FFmpeg post-processing args for enhancement and codec
+    pp_args = []
+    
+    # Smart Enhancement
+    if job.enhance:
+        if quality == "audio":
+            pp_args.extend(["-af", "loudnorm=I=-16:TP=-1.5:LRA=11"])
+        else:
+            pp_args.extend(["-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-vf", "unsharp=5:5:1.0:5:5:0.0,eq=saturation=1.2"])
+
+    # Codec Conversion
+    if job.codec == "hevc" and quality != "audio":
+        pp_args.extend(["-c:v", "libx265", "-crf", "26", "-preset", "fast"])
+        
+    if pp_args:
+        opts["postprocessor_args"] = pp_args
+
+    # If MP4 and no specific codec requested, add remux postprocessor for consistency
+    if ext == "mp4" and quality != "audio" and job.codec != "hevc":
         opts["postprocessors"].append(
             {
                 "key": "FFmpegVideoRemuxer",

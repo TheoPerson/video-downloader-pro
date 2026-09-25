@@ -11,8 +11,11 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronDown,
+  ChevronUp,
   RotateCcw,
   Sparkles,
+  Settings2,
+  Wand2,
 } from "lucide-react";
 import {
   analyzeVideo,
@@ -26,6 +29,15 @@ import {
   ApiError,
 } from "@/lib/api";
 import { isValidVideoUrl, looksLikeUrl } from "@/lib/url-utils";
+
+export interface DownloadHistoryItem {
+  id: string;
+  url: string;
+  title: string;
+  thumbnail: string;
+  channel: string;
+  date: number;
+}
 
 type AppState =
   | "idle"
@@ -42,8 +54,36 @@ export default function VideoDownloader() {
   const [selectedQuality, setSelectedQuality] = useState<string>("");
   const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
   const [error, setError] = useState<string>("");
+  
+  // Advanced options state
+  const [selectedFormat, setSelectedFormat] = useState<string>("mp4");
+  const [selectedCodec, setSelectedCodec] = useState<string>("h264");
+  const [enhanceEnabled, setEnhanceEnabled] = useState<boolean>(false);
+  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+  
+  // History state
+  const [history, setHistory] = useState<DownloadHistoryItem[]>([]);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("vdp_history");
+    if (saved) {
+      try {
+        setHistory(JSON.parse(saved));
+      } catch {}
+    }
+  }, []);
+
+  const saveToHistory = useCallback((item: DownloadHistoryItem) => {
+    setHistory((prev) => {
+      const filtered = prev.filter((p) => p.url !== item.url);
+      const next = [item, ...filtered].slice(0, 5); // Keep last 5
+      localStorage.setItem("vdp_history", JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -90,12 +130,18 @@ export default function VideoDownloader() {
     if (!metadata || !selectedQuality) return;
     setError("");
     setAppState("downloading");
-    const fmt = metadata.formats.find((f) => f.quality === selectedQuality);
+    
+    // Determine the actual format based on quality
+    const isAudio = selectedQuality === "audio";
+    const actualFormat = isAudio ? "audio" : selectedFormat;
+
     try {
       const { job_id } = await startDownload(
         url.trim(),
         selectedQuality,
-        fmt?.container || "mp4"
+        actualFormat,
+        selectedCodec,
+        enhanceEnabled
       );
       const poll = setInterval(async () => {
         try {
@@ -105,6 +151,16 @@ export default function VideoDownloader() {
             clearInterval(poll);
             pollRef.current = null;
             setAppState("ready");
+            
+            saveToHistory({
+              id: job_id,
+              url: url.trim(),
+              title: metadata.title,
+              thumbnail: metadata.thumbnail,
+              channel: metadata.channel,
+              date: Date.now(),
+            });
+
             window.location.href = getDownloadUrl(job_id);
           } else if (status.state === "failed") {
             clearInterval(poll);
@@ -131,7 +187,7 @@ export default function VideoDownloader() {
       );
       setAppState("error");
     }
-  }, [metadata, selectedQuality, url]);
+  }, [metadata, selectedQuality, url, selectedFormat, selectedCodec, enhanceEnabled, saveToHistory]);
 
   const handlePaste = useCallback(async () => {
     try {
@@ -428,18 +484,139 @@ export default function VideoDownloader() {
                           <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
                         </div>
 
+                        {/* Advanced Options Toggle */}
+                        {selectedQuality !== "audio" && (
+                          <div className="pt-2">
+                            <button
+                              onClick={() => setShowAdvanced(!showAdvanced)}
+                              className="w-full flex items-center justify-center gap-2 text-[13px] font-medium text-white/40 hover:text-white/70 transition-colors py-2"
+                            >
+                              <Settings2 className="w-4 h-4" />
+                              Advanced Options
+                              {showAdvanced ? (
+                                <ChevronUp className="w-3.5 h-3.5" />
+                              ) : (
+                                <ChevronDown className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+
+                            <AnimatePresence>
+                              {showAdvanced && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="pt-4 pb-2 space-y-4 border-t border-white/[0.06] mt-2">
+                                    {/* Format */}
+                                    <div className="space-y-2">
+                                      <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider">
+                                        Container Format
+                                      </span>
+                                      <div className="flex gap-2">
+                                        {["mp4", "mkv"].map((f) => (
+                                          <button
+                                            key={f}
+                                            onClick={() => setSelectedFormat(f)}
+                                            className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                                              selectedFormat === f
+                                                ? "bg-white/10 text-white border border-white/20"
+                                                : "bg-white/[0.03] text-white/40 border border-transparent hover:bg-white/[0.06]"
+                                            }`}
+                                          >
+                                            {f.toUpperCase()}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    {/* Codec */}
+                                    <div className="space-y-2">
+                                      <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider">
+                                        Video Codec
+                                      </span>
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => setSelectedCodec("h264")}
+                                          className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                                            selectedCodec === "h264"
+                                              ? "bg-white/10 text-white border border-white/20"
+                                              : "bg-white/[0.03] text-white/40 border border-transparent hover:bg-white/[0.06]"
+                                          }`}
+                                        >
+                                          H.264 (Compatible)
+                                        </button>
+                                        <button
+                                          onClick={() => setSelectedCodec("hevc")}
+                                          className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                                            selectedCodec === "hevc"
+                                              ? "bg-white/10 text-white border border-white/20"
+                                              : "bg-white/[0.03] text-white/40 border border-transparent hover:bg-white/[0.06]"
+                                          }`}
+                                        >
+                                          HEVC (Small Size)
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        )}
+
+                        {/* Smart Enhance Toggle */}
+                        <div
+                          onClick={() => setEnhanceEnabled(!enhanceEnabled)}
+                          className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                            enhanceEnabled
+                              ? "bg-blue-500/10 border-blue-500/30 text-blue-100"
+                              : "bg-white/[0.03] border-white/[0.06] text-white/50 hover:bg-white/[0.05]"
+                          }`}
+                        >
+                          <div
+                            className={`p-1.5 rounded-md ${
+                              enhanceEnabled ? "bg-blue-500/20" : "bg-white/5"
+                            }`}
+                          >
+                            <Wand2
+                              className={`w-4 h-4 ${
+                                enhanceEnabled ? "text-blue-400" : "text-white/40"
+                              }`}
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[13px] font-medium">Magic Enhance</p>
+                            <p className="text-[11px] opacity-60">
+                              {selectedQuality === "audio"
+                                ? "Normalizes volume and clarity."
+                                : "Boosts audio clarity & sharpens video."}
+                            </p>
+                          </div>
+                          <div
+                            className={`w-9 h-5 rounded-full relative transition-colors ${
+                              enhanceEnabled ? "bg-blue-500" : "bg-white/10"
+                            }`}
+                          >
+                            <div
+                              className={`absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-transform ${
+                                enhanceEnabled ? "translate-x-4" : ""
+                              }`}
+                            />
+                          </div>
+                        </div>
+
                         {/* Download button */}
                         <button
                           onClick={handleDownload}
-                          className="w-full py-3.5 rounded-xl bg-white text-black text-[15px] font-semibold
+                          className="w-full py-3.5 mt-2 rounded-xl bg-white text-black text-[15px] font-semibold
                                      hover:bg-white/90 active:scale-[0.98] transition-all touch-manipulation
                                      flex items-center justify-center gap-2"
                         >
                           <Download className="w-4 h-4" />
                           Download{" "}
-                          {metadata.formats
-                            .find((f) => f.quality === selectedQuality)
-                            ?.container.toUpperCase() || "MP4"}
+                          {selectedQuality === "audio" ? "Audio (M4A)" : selectedFormat.toUpperCase()}
                         </button>
                       </div>
                     )}
@@ -537,6 +714,42 @@ export default function VideoDownloader() {
             )}
           </AnimatePresence>
         </motion.div>
+
+        {/* ── History Section ── */}
+        <AnimatePresence>
+          {history.length > 0 && appState === "idle" && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="w-full max-w-[480px] mt-12 space-y-4"
+            >
+              <h3 className="text-[13px] font-semibold text-white/40 uppercase tracking-widest pl-1">
+                Recent Downloads
+              </h3>
+              <div className="space-y-2">
+                {history.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      setUrl(item.url);
+                      handleAnalyze(item.url);
+                    }}
+                    className="flex items-center gap-4 p-3 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.05] cursor-pointer transition-colors touch-manipulation"
+                  >
+                    <div className="w-16 h-10 shrink-0 rounded-lg overflow-hidden bg-white/5">
+                      <img src={item.thumbnail} alt="" className="w-full h-full object-cover opacity-80" loading="lazy" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-[13px] font-medium text-white/80 line-clamp-1 leading-snug">{item.title}</h4>
+                      <p className="text-[11px] text-white/30 mt-0.5">{item.channel}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* ── Footer ── */}

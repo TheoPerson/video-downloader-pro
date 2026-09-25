@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["women-attachment-ringtones-outer.trycloudflare.com", "localhost:3000"],
   async rewrites() {
     return [
       {

@@ -35,6 +35,8 @@ class Job:
     url: str
     quality: str = "720p"
     format: str = "mp4"
+    codec: str = "h264"
+    enhance: bool = False
     state: JobState = JobState.QUEUED
     progress: float = 0.0
     error: Optional[str] = None
@@ -99,10 +101,10 @@ class JobManager:
             self._cleanup_file(job)
         logger.info("Job manager stopped")
 
-    def create_job(self, url: str, quality: str, format: str = "mp4") -> Job:
+    def create_job(self, url: str, quality: str, format: str = "mp4", codec: str = "h264", enhance: bool = False) -> Job:
         """Create a new download job."""
         job_id = uuid.uuid4().hex[:16]
-        job = Job(id=job_id, url=url, quality=quality, format=format)
+        job = Job(id=job_id, url=url, quality=quality, format=format, codec=codec, enhance=enhance)
         self._jobs[job_id] = job
         logger.info(f"Job created: {job_id[:8]} for quality={quality}")
         return job

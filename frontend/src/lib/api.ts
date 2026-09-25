@@ -73,11 +73,13 @@ export async function startDownload(
   url: string,
   quality: string,
   format: string = "mp4",
+  codec: string = "h264",
+  enhance: boolean = false
 ): Promise<{ job_id: string; state: string }> {
   const response = await fetch(`${API_BASE}/api/download`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url, quality, format }),
+    body: JSON.stringify({ url, quality, format, codec, enhance }),
   });
   return handleResponse<{ job_id: string; state: string }>(response);
 }

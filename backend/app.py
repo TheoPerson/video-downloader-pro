@@ -106,7 +106,9 @@ class DownloadRequest(BaseModel):
 
     url: str
     quality: str = "720p"
-    format: str = "mp4"
+    format: str = "mp4" # mp4, mkv, audio
+    codec: str = "h264" # h264, hevc
+    enhance: bool = False
 
     @field_validator("url")
     @classmethod
@@ -128,9 +130,17 @@ class DownloadRequest(BaseModel):
     @field_validator("format")
     @classmethod
     def validate_format(cls, v: str) -> str:
-        allowed = {"mp4", "m4a"}
+        allowed = {"mp4", "mkv", "audio"}
         if v not in allowed:
             raise ValueError(f"Format must be one of: {', '.join(sorted(allowed))}")
+        return v
+
+    @field_validator("codec")
+    @classmethod
+    def validate_codec(cls, v: str) -> str:
+        allowed = {"h264", "hevc"}
+        if v not in allowed:
+            raise ValueError(f"Codec must be one of: {', '.join(sorted(allowed))}")
         return v
 
 
@@ -192,7 +202,7 @@ async def start_download(request: Request, body: DownloadRequest):
 
     # Create job
     fmt = "m4a" if body.quality == "audio" else body.format
-    job = job_manager.create_job(normalized_url, body.quality, fmt)
+    job = job_manager.create_job(normalized_url, body.quality, fmt, body.codec, body.enhance)
 
     # Start download in background
     asyncio.create_task(_run_download(job))
